@@ -85,6 +85,37 @@
 .player.no-video { cursor: not-allowed; }
 .player.no-video .play { opacity: 0.55; animation: none; }
 
+/* JS-обёртка для плеера: даёт .net-hint позиционный якорь, не меняя раскладку .media/.info.
+   размер обёртки = размер плеера (player фолбэк-стилится через aspect-ratio + width:auto). */
+.player-hint-anchor { position: relative; }
+
+/* серая подсказка про сторонние сетевые приложения. показывается один раз за загрузку страницы.
+   по умолчанию (десктоп, плеер у НИЗА слайда — Авито/Кидз) — кидаем НАД плеером, чтобы не клипалось карусели.
+   Билайн (l2) — плеер сверху, подсказку кидаем ПОД него. См. оверрайды ниже. */
+.net-hint {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 100%;
+  margin-bottom: clamp(8px, 0.9vh, 14px);
+  font-size: clamp(11px, 0.78vw + 2px, 14px);
+  line-height: 1.4;
+  color: var(--fg-mut);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  white-space: nowrap;   /* подсказка должна быть в одну строку — на узких шрифт ужимается ниже по правилу */
+}
+/* на узких — шрифт ужимается вместе с шириной экрана, чтобы фраза всегда умещалась в одну строку */
+@media (max-width: 600px) {
+  .net-hint { font-size: clamp(8px, 2.6vw, 12px); }
+}
+.net-hint.visible { opacity: 1; }
+/* Билайн — плеер вверху слайда, подсказку кидаем ПОД него */
+.case.l2 .net-hint {
+  bottom: auto; top: 100%;
+  margin-bottom: 0; margin-top: clamp(8px, 0.9vh, 14px);
+}
+
 /* screenshot tiles — straight (no tilt, no frame), ~1.5× larger so content reads */
 .shot {
   position: relative;
@@ -220,6 +251,12 @@
     position: static; width: 100%;
     grid-column: 2; grid-row: 1; justify-self: center;
     margin-top: 1.55rem;   /* верх видео — по нижней границе строки названия кейса */
+  }
+  /* на компакт-десктопе и мобильных подсказка ВСЕГДА под плеером (на всех кейсах),
+     перебиваем дефолтное «над» */
+  .case .net-hint {
+    bottom: auto; top: 100%;
+    margin-bottom: 0; margin-top: clamp(8px, 0.9vh, 14px);
   }
   /* перебиваем коллажные per-slide ширины видео (.case.lN .media), у них приоритет выше */
   .case.l1 > .media,

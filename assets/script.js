@@ -375,6 +375,28 @@
     return url + (url.includes("?") ? "&" : "?") + "autoplay=1";
   }
 
+  // подсказка про сторонние приложения для интернета — показывается один раз за загрузку страницы.
+   // оборачиваем плеер в маленькую обёртку с position: relative — это даёт подсказке позиционный якорь
+   // одного и того же размера на любой ширине, не меняя позиционирование .media и .info
+  let netHintShown = false;
+  function showNetHintOnce(player) {
+    if (netHintShown) return;
+    netHintShown = true;
+    const wrap = document.createElement("div");
+    wrap.className = "player-hint-anchor";
+    player.parentNode.insertBefore(wrap, player);
+    wrap.appendChild(player);
+    const hint = document.createElement("p");
+    hint.className = "net-hint";
+    hint.textContent = "Сторонние приложения для интернета могут влиять на загрузку";
+    wrap.appendChild(hint);
+    requestAnimationFrame(() => hint.classList.add("visible"));
+    setTimeout(() => {
+      hint.classList.remove("visible");
+      hint.addEventListener("transitionend", () => hint.remove(), { once: true });
+    }, 10000);
+  }
+
   document.querySelectorAll(".player").forEach((player) => {
     const localSrc = player.dataset.videoSrc;
     const embedSrc = player.dataset.videoEmbed;
@@ -402,6 +424,7 @@
         // браузер может заблокировать autoplay со звуком — на этот случай дублируем play()
         v.play().catch(() => { /* ничего страшного — у пользователя будут controls */ });
       }
+      showNetHintOnce(player);
     }
     player.addEventListener("click", launch);
     player.addEventListener("keydown", (e) => {
