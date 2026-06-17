@@ -1,0 +1,852 @@
+/* ============================================================
+   CASE SLIDE — chaotic free composition (blit-style)
+   each slide a full-bleed canvas; video, text & photos scattered
+   ============================================================ */
+.case-slide { padding: 0; }
+.case {
+  position: relative;
+  padding: 0 var(--gutter);
+  /* высота полотна привязана к ШИРИНЕ (как и размеры фото), а не к высоте окна —
+     иначе на высоких/квадратных экранах фото расползаются по вертикали.
+     31.25vw подобран так, что на 1920px высота = 600px (эталонная раскладка). */
+  height: clamp(440px, 31.25vw, 600px);
+  /* минимально допустимый левый край для фото = правый край текстовой карточки + зазор.
+     На широких экранах побеждает художественная позиция фото (left: X%), на узких,
+     где карточка занимает бóльшую долю, фото само отступает правее и не лезет под текст. */
+  --shot-left-min: calc(var(--gutter) - 18px + min(40%, 460px) + 20px);
+}
+.case > .media,
+.case > .info,
+.case > .shot { position: absolute; }
+/* z-порядок: фото — самый низ, плеер выше (фото уходят ЗА плеер при пересечении),
+   инфо-карточка ещё выше (маскирует всё, что под ней) */
+.case > .shot  { z-index: 1; }
+.case > .media { z-index: 2; }
+.case > .info  { z-index: 3; }
+
+/* На >1920 ширины кэпятся на FHD-значениях, чтобы zoom не давал двойного увеличения. */
+.case .media { width: min(42%, 806px); }
+
+/* плеер */
+.player {
+  position: relative; aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden;
+  background: transparent;   /* убрана тёмная «обводка» по краям видео */
+}
+.player .ph {
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 14px, transparent 14px 28px),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 30%, #111), #111);
+}
+/* подписи над плеером скрыты (хранится в коде на случай возврата) */
+.player .ph-label {
+  display: none;
+  position: absolute; left: 16px; bottom: 14px;
+  font-family: ui-monospace, monospace; font-size: 12px;
+  color: rgba(255,255,255,0.7); letter-spacing: 0.04em;
+}
+.player .play {
+  position: absolute; inset: 0; margin: auto;
+  width: 76px; height: 76px; border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 90%, white);
+  display: grid; place-items: center; cursor: pointer;
+  transition: transform 0.3s var(--ease);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: pulse 2.6s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+  70% { box-shadow: 0 0 0 22px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.player .play:hover { transform: scale(1.08); }
+.player .play svg { width: 26px; height: 26px; fill: #0c0c0c; margin-left: 1px; }
+
+/* real cover frame behind the play button (video added later) */
+.player .poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+/* затемняющий градиент поверх постера убран по просьбе — постеры остаются чистыми */
+.player.has-poster .play, .player.has-poster .ph-label { z-index: 2; }
+.player.has-poster .ph-label { color: #fff; }
+
+/* состояние плеера после клика: постер/кнопка скрываются, появляется видео или iframe */
+.player.playing .poster,
+.player.playing .play,
+.player.playing .ph-label,
+.player.playing::before { display: none; }
+.player video,
+.player iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; border: 0;
+  background: #0c0c0c;
+  z-index: 4;
+}
+/* подсказка над постером в режиме «нет файла» */
+.player.no-video { cursor: not-allowed; }
+.player.no-video .play { opacity: 0.55; animation: none; }
+
+/* screenshot tiles — straight (no tilt, no frame), ~1.5× larger so content reads */
+.shot {
+  position: relative;
+  aspect-ratio: 16/9; border-radius: 5px; overflow: hidden;
+  margin: 0;
+}
+.shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* info: fixed on the LEFT for every slide, left edge aligned with the «Кейсы» heading.
+   background matches the page so it blends at rest but masks any media that drifts under it. */
+.case .info {
+  left: calc(var(--gutter) - 18px);
+  top: 0; width: min(40%, 460px);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  padding: 0.5rem 0.9rem; border-radius: 6px;
+}
+.case .meta { margin-bottom: 1.35rem; } /* было clamp(20px,2.5vh,32px) — на FHD ~27px */
+.case .meta .proj {
+  display: block;
+  font-family: "Manrope", sans-serif; font-weight: 800;
+  font-size: var(--fs-h2); line-height: 1.04; letter-spacing: -0.02em;
+  color: var(--fg); margin-bottom: 0.3rem;
+}
+.case .meta .org {
+  display: block; margin-top: 0.2rem;
+  font-family: "Manrope", sans-serif; font-weight: 600; font-size: 13px;
+  letter-spacing: 0.01em; color: var(--fg-mut);
+}
+.case .desc { color: var(--fg); margin-bottom: 0.4rem; font-size: var(--fs-body); line-height: 1.4; }
+/* единый «дышащий» отступ между всеми блоками инфо-карточки */
+.case .desc + .desc,
+.case .desc + .challenge { margin-top: 1.35rem; } /* было clamp(20px,2.5vh,32px) — на FHD ~27px */
+.case .challenge {
+  border-left: 2px solid var(--accent);
+  padding-left: 0.8rem; color: var(--fg-mut); font-size: var(--fs-body); line-height: 1.4;
+}
+.case .challenge b { font-family:"Manrope",sans-serif; font-weight:700; color: var(--fg); }
+
+/* Х5 — landing fragment shown in a browser window (вместо видео) */
+.site {
+  border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--hair); border-bottom: 0; background: transparent;
+}
+.site .bar {
+  display: flex; align-items: center; gap: 7px;
+  height: 34px; padding: 0 14px;
+  background: color-mix(in srgb, var(--fg) 5%, var(--card));
+  border-bottom: 1px solid var(--hair);
+}
+.site .bar span {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--hair); cursor: pointer;
+  transition: background 0.2s var(--ease);
+}
+/* при наведении кружки превращаются в свои «маковские» цвета — только для устройств
+   с реальной мышью, чтобы на тач после тапа цвет не «залипал» (фейковый hover) */
+@media (hover: hover) {
+  .site .bar span:nth-child(1):hover { background: #ff5f57; }
+  .site .bar span:nth-child(2):hover { background: #febc2e; }
+  .site .bar span:nth-child(3):hover { background: #28c840; }
+}
+/* при клике все три кружка мигают по очереди (см. логику в script.js) */
+.site .bar span.blink { animation: macDotBlink 0.3s ease; }
+@keyframes macDotBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.25; transform: scale(0.7); }
+}
+.site .bar i {
+  margin-left: 10px; font-style: normal;
+  font-family: ui-monospace, monospace; font-size: 11px; color: var(--fg-mut);
+  white-space: nowrap;
+}
+/* На узких экранах: адресная строка уменьшена + сама полоска браузера тоньше,
+   чтобы основная часть имитации занимала больше места. */
+@media (max-width: 720px) {
+  .site .bar { height: 24px; padding: 0 12px; }
+  .site .bar i { font-size: 9px; }
+}
+.site .screen { position: relative; aspect-ratio: 1100 / 667; overflow: hidden; transform: translateZ(0); }
+.site .screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.site .screen::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 64px;
+  background: linear-gradient(transparent, color-mix(in srgb, var(--card) 88%, transparent));
+}
+
+/* ---- per-slide: info fixed left. media top/bottom-right; the 3 photos sit in the
+   open band below/above the media (x ≥ ~44%, clear of the left info). ---- */
+/* Авито: видео перенесено в правый нижний угол, фото распределены по верху и середине.
+   Фото-акцент s2 (девушка с зелёным фоном) занимает верх-правый угол, где раньше было видео. */
+.case.l1 .media { bottom: 4%; right: var(--gutter); width: min(32%, 614px); }
+.case.l1 .s1 { top: 5%;     left: max(55%, var(--shot-left-min)); width: min(10.42vw, 200px); }
+.case.l1 .s2 { top: 6%;     right: var(--gutter);                width: min(15.63vw, 300px); }
+.case.l1 .s3 { top: 38%;    left: max(42%, var(--shot-left-min)); width: min(11.46vw, 220px); }
+
+/* МегаФон: видео сужено с 36% до 32%, фото на прежних местах — им стало свободнее слева */
+.case.l2 .media { top: 3%;  right: var(--gutter); width: min(32%, 614px); }
+.case.l2 .s1 { top: 14%;    left: max(42%, var(--shot-left-min)); width: min(9.38vw, 180px); }
+.case.l2 .s2 { top: 60%;    left: max(41%, var(--shot-left-min)); width: min(11.46vw, 220px); }
+.case.l2 .s3 { bottom: 5%;  left: max(72%, var(--shot-left-min)); width: min(10.42vw, 200px); }
+
+.case.l3 .media { top: 3%;  right: var(--gutter); width: min(32%, 614px); }
+/* X5: s1 (открытка) увеличена, s2 (фасад) увеличен, s3 (фасад с весами) — акцентный, лежит ПОВЕРХ сайт-окошка */
+.case.l3 .s1 { top: 6%;     left: max(38%, var(--shot-left-min)); width: min(11.46vw, 220px); aspect-ratio: 1; }
+.case.l3 .s2 { bottom: 5%;  left: max(45%, var(--shot-left-min)); width: min(14.58vw, 280px); }
+.case.l3 .s3 { bottom: 5%;  right: var(--gutter);  width: min(15.63vw, 300px); z-index: 3; }
+
+.case.l4 .media { bottom: 4%; right: var(--gutter); width: min(36%, 691px); }
+.case.l4 .s1 { top: 3%;     left: max(46%, var(--shot-left-min)); width: min(10.21vw, 196px); }
+.case.l4 .s2 { top: 4%;     right: var(--gutter);                width: min(10.42vw, 200px); }
+.case.l4 .s3 { top: 30%;    left: max(38%, var(--shot-left-min)); width: min(10.73vw, 206px); }
+
+/* Узкие экраны (уже 1400px): «коллаж» выключаем. Текст — слева, основное видео —
+   справа от текста и выровнено по верху (по линии названия кейса). */
+@media (max-width: 1400px) {
+  .case {
+    position: static;
+    height: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+    gap: clamp(20px, 4vw, 56px);
+    align-items: start;            /* видео и текст прижаты к верху → верх видео = линия названия */
+    padding-block: 1.2rem;         /* +~10% вертикали — воздух сверху и снизу слайда */
+  }
+  /* текст и видео — жёстко в один ряд (иначе автораскладка роняет текст под видео) */
+  .case > .info {
+    position: static; width: auto; max-width: 420px;
+    grid-column: 1; grid-row: 1;
+    background: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+    padding: 0; border-radius: 0;
+  }
+  .case > .media {
+    position: static; width: 100%;
+    grid-column: 2; grid-row: 1; justify-self: center;
+    margin-top: 1.55rem;   /* верх видео — по нижней границе строки названия кейса */
+  }
+  /* перебиваем коллажные per-slide ширины видео (.case.lN .media), у них приоритет выше */
+  .case.l1 > .media,
+  .case.l2 > .media,
+  .case.l4 > .media { width: 100%; }
+  .case > .shot { display: none; }
+
+  /* Х5 — сайт крупно вверху-справа, фото с собакой крупно внизу-слева с нахлёстом.
+     Оба изображения лежат в одной ячейке сетки и разнесены по углам. */
+  .case.l3 > .info  { grid-column: 1; grid-row: 1; }
+  .case.l3 > .media {
+    grid-column: 2; grid-row: 1;
+    justify-self: end; align-self: start;   /* сайт — вверх-вправо */
+    width: 65%; max-width: none; z-index: 1;
+    margin-right: 7%;                        /* отступ от правого края (не transform — чтобы не мешать параллаксу) */
+  }
+  .case.l3 > .s3 {
+    display: block; position: static;
+    grid-column: 2; grid-row: 1;
+    justify-self: start; align-self: end;    /* собака — низ-влево, поверх сайта */
+    width: 38%; z-index: 2;
+    margin-left: 3%;                         /* отступ от левого края */
+    margin-bottom: 2%;                       /* поднять для нахлёста (отступ, не transform) */
+  }
+}
+
+/* Планшеты и телефоны (≤980px) — полностью вертикальная раскладка кейса.
+   Порядок сверху вниз: НАЗВАНИЕ + СТУДИЯ → ВИДЕО → ОПИСАНИЕ → ВЫЗОВ.
+   Для Х5 в конце добавляется фото с собакой. Все остальные доп-фотки скрыты. */
+@media (max-width: 980px) {
+  .case {
+    grid-template-columns: 1fr;
+    /* единый отступ между ВСЕМИ блоками карточки — ~40px на FHD */
+    gap: 2rem;
+    padding-block: 1.5rem;
+  }
+  /* .info — контейнер вокруг meta/desc/challenge. Через display:contents он «исчезает»
+     как блок, и его дети становятся прямыми grid-детьми .case. */
+  .case > .info { display: contents; }
+  /* Все дети .case (включая «контентовых» детей .info) — в одну колонку, auto-row.
+     Обнуляем horizontal padding и vertical margins, чтобы:
+       — все блоки начинались с одной левой линии (= padding-left у .case = var(--gutter));
+       — расстояние между блоками определялось ТОЛЬКО единым grid-gap, без суммирования margin'ов. */
+  .case > .media,
+  .case > .shot,
+  .case .meta,
+  .case .desc,
+  .case .challenge {
+    grid-column: 1; grid-row: auto;
+    margin-top: 0; margin-bottom: 0;
+    padding-left: 0; padding-right: 0;
+    max-width: none;
+  }
+  /* специфичные правила .desc + .desc / .desc + .challenge из базы добавляют свой
+     margin-top — здесь явно перебиваем, иначе расстояние между абзацами больше gap */
+  .case .desc + .desc,
+  .case .desc + .challenge { margin-top: 0; }
+
+  .case .meta      { order: 1; }
+  .case > .media   { order: 2; position: static; width: 100%; margin-top: 0; justify-self: stretch; }
+  .case .desc      { order: 3; }
+  /* у challenge сохраняется border-left + 0.8rem padding-left — это часть его дизайна */
+  .case .challenge { order: 4; padding-left: 0.8rem; }
+  .case > .shot    { display: none; }
+
+  /* Х5 — медиа-зона повторяет десктопную «диагональную» композицию:
+     site (имитация окна) — крупно вправо-вверх, s3 (собака) — крупнее влево-вниз.
+     Оба элемента кладутся в ОДНУ grid-ячейку (одну строку), наслаиваясь.
+     margin-bottom: 8% у site — это «воздух под site внутри ячейки»: увеличивает
+     высоту медиа-зоны, чтобы собака (align-self: end) опустилась ниже, а текст
+     под зоной автоматически уехал ниже. 8% от ширины .case — адаптивно: на любых
+     ширинах воздух остаётся пропорциональным размеру site. */
+  .case.l3 > .media {
+    grid-row: 2; grid-column: 1;
+    width: 72%;
+    justify-self: end;
+    align-self: start;
+    margin: 0 0 8% 0;
+    z-index: 1;
+  }
+  .case.l3 > .s3 {
+    display: block;
+    position: static;
+    grid-row: 2; grid-column: 1;
+    width: 42%;
+    justify-self: start;
+    align-self: end;
+    margin: 0;
+    z-index: 2;
+  }
+
+  /* кнопка play — пропорционально меньше относительно сжавшегося видео */
+  .player .play { width: 56px; height: 56px; }
+  .player .play svg { width: 20px; height: 20px; }
+
+  /* стрелки навигации — по бокам по центру кейс-области.
+     top: 50% от .cases (head + viewport + counter) — близко к центру самого слайда. */
+  .case-arrow {
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    width: 36px; height: 36px;
+  }
+  /* стрелки живут в padding-зоне .case (между media и краем экрана),
+     центрированы по горизонтали внутри этой зоны → симметрично с обеих сторон.
+     Для Х5 правая стрелка может наезжать на site (site прижат вправо) — это пока
+     осознанное исключение, смотрим визуально. */
+  .case-arrow.prev { left: calc((var(--gutter) - 36px) / 2); }
+  .case-arrow.next { right: calc((var(--gutter) - 36px) / 2); }
+  /* hover-смещение и состояние disabled — все включают translateY(-50%), иначе при
+     отключении кнопка «прыгает» вверх на половину своей высоты. */
+  .case-arrow.prev:hover { transform: translate(-4px, -50%); }
+  .case-arrow.next:hover { transform: translate(4px, -50%); }
+  .case-arrow:disabled { transform: translateY(-50%); }
+
+  /* счётчик отрывается от текста кейса нормальным воздухом */
+  .case-counter { margin-top: 1.5rem; }
+}
+
+/* ============================================================
+   МЕЖСЕКЦИОННАЯ ПРИПИСКА — простой текстовый блок между кейсами и контактами
+   ============================================================ */
+/* обёртка вокруг cases-outro + контактов с фоновой дугой.
+   padding-bottom: 90px — дополнительные 90px холста снизу, через которые
+   продолжается круг и под которыми лежит подвал */
+.deco-arc-wrap {
+  position: relative;
+  /* РУЧКА: свободное поле между кейсами и композицией. Двигает всю композицию вниз
+     единым блоком (круг + приписка + контакты + подвал), обхват круга сохраняется,
+     т.к. круг и текст оба внутри обёртки и едут вместе. В rem — масштаб по ширине. */
+  margin-top: 2rem;
+}
+.deco-arc-wrap > section { position: relative; z-index: 1; }
+/* SVG с дугой расширен вверх на 150px, чтобы верх круга помещался целиком
+   и не упирался в нижний край блока кейсов */
+/* Круг масштабируется ТОЛЬКО по ширине (height:auto → высота из пропорций viewBox),
+   поэтому не «плавает» при смене формата окна. Его макушка (верх круга вынесен в верх
+   viewBox) прибита к позиции относительно текста-приписки через top. */
+.deco-arc {
+  position: absolute;
+  /* РУЧКА: вертикальное положение макушки круга (больше = ниже, меньше = выше).
+     -3.65vw компенсирует запас сверху в холсте (viewBox расширен вверх на 70 ед. = 3.65vw),
+     чтобы макушка осталась на прежнем месте, а толстая линия не срезалась краем холста. */
+  top: calc(-1rem - 3.65vw);
+  left: 0;
+  width: 100%;
+  height: auto;
+  /* Снимаем стандартное «обрезание по холсту SVG». Круг рисуется ЦЕЛИКОМ; невидимые
+     его части просто оказываются за пределами экрана/перекрыты другими элементами. */
+  overflow: visible;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* НА ≤1200 «замораживаем» размер круга на уровне, который был ровно на ширине 1200,
+   а его положение синхронизируем с уехавшим влево --gutter — так круг продолжает
+   обнимать текст «Я показала четыре проекта…» так же, как на контрольной ширине.
+   - width: 1200px — SVG больше не сжимается (вместе с ним фиксируются и волны).
+   - left: calc(var(--gutter) - 132px) — на 1200 даёт 0 (бесшовный переход),
+     на узких — отрицательное число, ровно компенсирующее съехавший gutter.
+     132px = clamp(32, 11vw, 200) на ширине 1200.
+   - top: -3.92rem — эквивалент исходного calc(-1rem - 3.65vw) на ширине 1200,
+     но больше не зависит от vw, поэтому макушка не уползает вверх/вниз. */
+@media (max-width: 1200px) {
+  .deco-arc {
+    width: 1200px;
+    left: calc(var(--gutter) - 132px);
+    top: -3.92rem;
+  }
+}
+
+.cases-outro {
+  /* отступ сверху фиксированный (не vh) — чтобы текст не «дышал» по высоте окна
+     и круг всегда обнимал его одинаково. Верх 4.1 / низ 3.1 (вместо 3.6/3.6): текст
+     опущен на ~0.5rem (≈10px на FHD) ВНУТРИ блока — высота блока та же, остальное не едет. */
+  padding: 4.1rem 0 3.1rem;
+}
+.cases-outro-text {
+  /* ширина масштабируется: на FHD = 720px (как в оригинале), на экранах уже — сжимается,
+     поэтому круг (он тоже тянется по ширине) обнимает текст одинаково на всех форматах */
+  max-width: clamp(360px, 37.5vw, 720px);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  color: var(--fg);
+}
+
+/* ============================================================
+   SCATTERED PHOTOS — straight, no frames, caption on the photo
+   ============================================================ */
+.scatter {
+  position: absolute; z-index: 5; margin: 0;
+  width: var(--w, 180px); cursor: default;
+  will-change: transform;
+}
+.scatter img {
+  display: block; width: 100%; height: auto; border-radius: 3px;
+}
+
+/* Базовые значения для каждой фотки — те же, что были в inline style до правок. */
+.scatter.trees     { --w: 11.72vw; right: var(--gutter); top: 30%; }
+.scatter.childhood { --w: 9.38vw; right: calc(22% + var(--gutter)); top: 52%; }
+.scatter.night     { --w: 13.75vw; right: calc(3% + var(--gutter)); bottom: 8%; }
+
+/* Брейкпоинт 720-899: плавный переход от 900-значений к 720-значениям.
+   На 720: trees right=58.2, night right=72, childhood right=232.77, top=52%-39.6 */
+@media (min-width: 720px) and (max-width: 899.98px) {
+  .scatter.trees {
+    --w: calc(4vw + 108px);
+    right: calc(23.78vw - 113.02px);
+    top: calc(30% + 5.83vw - 28.47px);
+  }
+  .scatter.night {
+    --w: calc(11.88vw + 106.92px);
+    right: calc(-11.11vw + 151.99px);
+    bottom: calc(8% - 8.33vw + 42.97px);
+  }
+  .scatter.childhood {
+    --w: calc(14.53vw + 6.92px);
+    right: calc(33.36vw - 31.23px);
+    top: calc(52% + 44.22vw - 387.98px);
+  }
+}
+
+/* Брейкпоинт 900-1199: плавный переход от 1200-значений к 900-значениям.
+   - trees: уменьшается на 20% (180→144), top компенсирует «обрезание» сверху-снизу.
+     right на 900: 101
+   - night: уменьшается на 10% (237.6→213.84), bottom компенсирует «обрезание».
+     right на 900: 52
+   - childhood: уменьшается на 10% (153→137.7), right на 900: 269, top не меняется (52%+10px) */
+@media (min-width: 900px) and (max-width: 1199.98px) {
+  .scatter.trees {
+    --w: calc(12vw + 36px);
+    right: calc(-0.333vw + 104px);
+    top: calc(30% - 8vw + 96px);
+  }
+  .scatter.night {
+    --w: calc(7.92vw + 142.56px);
+    right: calc(35.33vw - 265.97px);
+    bottom: calc(8% - 2.67vw - 7.96px);
+  }
+  .scatter.childhood {
+    --w: calc(5.1vw + 91.8px);
+    right: calc(50vw - 181px);
+    top: calc(52% + 10px);
+  }
+}
+
+/* Брейкпоинт 1200-1500: фотки замораживаются в своих 1500-размерах и позициях.
+   trees и night — фикс. Childhood плавно уезжает правее ещё на 40px к 1200
+   (right с 582 на 1500 до 542 на 1200). Top childhood остаётся на «52% − 10px» как на 1500. */
+@media (min-width: 1200px) {
+  .scatter.trees     { --w: 180px;   right: 200px; }
+  .scatter.childhood {
+    --w: 180px;
+    right: max(13.33vw + 382px, calc(22% + var(--gutter)));
+    top: calc(52% - 10px);
+  }
+  .scatter.night     { --w: 237.6px; right: 258px; }
+}
+
+/* Стабилизация высоты .contact в диапазоне 1200-1499: фиксируем основные отступы в пикселях
+   на их значениях с ширины 1500 (html font-size = 16.7px → padding-top 7.57rem ≈ 126px и т.д.).
+   На ≥1500 — без изменений (там всё как сейчас, проверено и одобрено). */
+@media (min-width: 1200px) and (max-width: 1499.98px) {
+  /* .contact stabilization правила перенесены в конец файла (после default .contact правил),
+     потому что иначе default перебивает их по CSS cascade. См. блок в конце файла. */
+
+  /* Плавные изменения фоток между 1500 и 1200 значениями:
+     - night опускается на 40px к 1200
+     - childhood уменьшается на 15% (180→153), top на 20px выше предыдущей версии
+     - вся композиция к 1200 сдвигается на 100px правее (компенсация уменьшившегося gutter):
+         trees right: 200 → 100
+         night right: 258 → 158
+         childhood right: 582 → 419 (включает 30 «правее» предыдущей правки + 100 сдвига) */
+  .scatter.trees     { right: calc(33.33vw - 300px); }
+  .scatter.night     {
+    bottom: calc(8% + 13.33vw - 200px);
+    right: calc(33.33vw - 242px);
+  }
+  .scatter.childhood {
+    --w: calc(9vw + 45px);
+    right: calc(54.33vw - 232.96px);
+    top: calc(52% - 6.67vw + 90.05px);
+  }
+}
+
+/* Брейкпоинт 1500-1920: фотки фиксируются по своим «углам у края» — правый верхний для
+   trees, правый нижний для night — а размер плавно уменьшается к 1500. На >1920 max() даёт
+   место vw-формуле, и фотки продолжают расти.
+   trees:     225→180   (-20%), правый верхний угол держит позицию (right=200).
+   night:     264→237.6 (-10%), правый нижний угол держит позицию (right=258).
+   childhood: размер не трогаем, на 1500 уезжает на 40px правее (right с 622→582)
+              и на ~10px выше (top с 52% до 52% − 10px). */
+@media (min-width: 1500px) {
+  /* На >1920 vw-формулы кэпятся на FHD-значениях через min(...), чтобы при zoom-масштабировании
+     не было двойного увеличения. На 1500-1920 кэпы не активируются (формула меньше). */
+  .scatter.trees     { --w: min(225px, max(10.71vw + 19.29px, 11.72vw)); right: max(200px, var(--gutter)); }
+  .scatter.childhood {
+    --w: min(180px, max(180px, 9.38vw));
+    right: min(622px, max(9.52vw + 439.14px, calc(22% + var(--gutter))));
+    top: calc(52% + 2.38vw - 45.71px);
+  }
+  .scatter.night     { --w: min(264px, max(6.29vw + 143.31px, 13.75vw)); right: min(258px, max(258px, calc(3% + var(--gutter)))); }
+}
+
+/* Мобильная раскладка <720: фотки становятся частью композиции (не overlay).
+   - closing сужается до 230px, заголовок ближе → закрытие текста на Y=350
+   - margin-bottom у closing увеличен, cta-zone опускается → низ cta на Y=550
+   - .contact растягивается через min-height чтобы поместить childhood и оставить padding-bottom
+   Координаты по запросу Веры на ширине 719: */
+@media (max-width: 719.98px) {
+  /* .contact правки (min-height, section-title-shift margin-bottom, closing max-width/margin-bottom)
+     перенесены в конец файла. Здесь — только .scatter, потому что их default находится ВЫШЕ. */
+  .scatter.trees     { --w: 137px;    right: var(--gutter); top: 175px;    bottom: auto; }
+  .scatter.night     { --w: 155.52px; right: 319px;         top: 361.78px; bottom: auto; }
+  .scatter.childhood { --w: 112px;    right: 157px;         top: 404px;    bottom: auto; }
+}
+
+/* На <630 childhood переключается с right-привязки на left-привязку — её абсолютная X
+   фиксируется на 361px от левого края (= позиция, которую она имела на 630). При сужении
+   окна trees и night продолжают двигаться влево вместе с окном (right фикс), а childhood
+   стоит на месте, освобождая правый край для cta-zone. */
+@media (max-width: 629.98px) {
+  .scatter.childhood { left: 361px; right: auto; }
+}
+
+/* На <600 ещё и night фиксируется — переключается с right на left (=125.48 = её позиция на 600).
+   При дальнейшем сужении trees ещё двигается влево вместе с окном, а night и childhood стоят. */
+@media (max-width: 599.98px) {
+  .scatter.night { left: 125.48px; right: auto; }
+}
+
+/* На ≤520 childhood и night возвращаются к right-привязке — снова двигаются влево вместе
+   с окном (как trees). Текстовый блок closing постепенно сужается по формуле, чтобы
+   уступать место приближающейся к нему фотке trees. */
+@media (max-width: 519.98px) {
+  .scatter.childhood { right: 47px;  left: auto; }
+  .scatter.night     { right: 239px; left: auto; }
+}
+
+/* На ≤509 night разово прыгает вниз на 10px (когда closing-фраза перенеслась на лишнюю
+   строку) и дальше держится на новом top. */
+@media (max-width: 509.98px) {
+  .scatter.night { top: 371.78px; }
+}
+
+/* На ≤490 trees плавно уменьшается (тянем за ЛНУ — низ фикс, top растёт). К 430 width
+   с 137 → 108, ниже 430 размер фотки фикс. Closing-фраза не сужается, но font-size
+   тоже начинает уменьшаться (см. ниже). */
+@media (max-width: 489.98px) {
+  .scatter.trees {
+    --w: clamp(108px, calc(48.36vw - 99.96px), 137px);
+    top: clamp(175px, calc(-64.02vw + 488.7px), 213.4px);
+  }
+}
+
+/* На ≤460 night и childhood снова фиксируют абсолютную X (через left). При дальнейшем
+   сужении окна они стоят на месте, освобождая место для уменьшающейся trees слева. */
+@media (max-width: 460px) {
+  .scatter.night     { left: 65.48px; right: auto; }
+  .scatter.childhood { left: 301px;   right: auto; }
+}
+
+/* На ≤469 night разово поднимается ещё на 15px (с 371.78 до 356.78). */
+@media (max-width: 469px) {
+  .scatter.night { top: 356.78px; }
+}
+
+/* На ≤440 trees переключается на left-привязку — больше не двигается влево (но --w
+   продолжает уменьшаться до 430-уровня по своей формуле выше).
+   childhood начинает уменьшаться (ускоренная скорость, в 3 раза быстрее): к 320 width
+   с 112 → 44.79. ПНУ фикс — left и top уменьшаются на dW/dH. */
+@media (max-width: 440px) {
+  .scatter.trees     { left: 278.56px; right: auto; }
+  .scatter.childhood {
+    --w:  clamp(44.79px,  calc(56.01vw - 134.44px), 112px);
+    left: clamp(233.79px, calc(56.01vw + 54.56px),  301px);
+    top:  clamp(304.40px, calc(83vw + 38.80px),     404px);
+  }
+}
+
+/* На ≤430 night разово опускается на 10px (с 356.78 до 366.78). */
+@media (max-width: 430px) {
+  .scatter.night { top: 366.78px; }
+}
+
+/* На ≤420 плавный переход от 420-значений к 375-значениям:
+   - trees: −20% за ПНУ + сдвиг -20px. На 375: W=87.48, left=279.08, top=240.57
+   - night: -10% симметрично с фикс. левой граней + сдвиг -10px. На 375: W=139.97, left=45.48, top=372.09
+   - childhood: −20% за ПНУ + сдвиг -50px + -10 вверх. На 375: W=81.65, left=258.95, top=405.78 */
+@media (max-width: 420px) {
+  .scatter.trees {
+    --w:  clamp(87.48px,  calc(45.6vw - 83.52px),    108px);
+    left: clamp(259.08px, calc(43.29vw + 96.74px),   278.56px);
+    top:  clamp(213.4px,  calc(-60.38vw + 466.99px), 240.57px);
+  }
+  .scatter.night {
+    --w:  clamp(139.97px, calc(34.56vw + 10.37px),  155.52px);
+    left: clamp(45.48px,  calc(44.44vw - 121.17px), 65.48px);
+    top:  clamp(366.78px, calc(-11.8vw + 416.34px), 372.09px);
+  }
+  .scatter.childhood {
+    --w:  clamp(81.648px, calc(42.56vw - 77.95px),   100.80px);
+    left: clamp(243.95px, calc(101.89vw - 138.14px), 289.80px);
+    top:  clamp(375.78px, calc(25.82vw + 278.95px),  387.40px);
+  }
+}
+
+/* На <375 trees и childhood уменьшаются так, чтобы их правый край всегда был не ближе
+   15px к правому краю экрана. Реализуется через max-width = окно − left − 15: пока окно
+   достаточно широкое, width=var(--w); как только окно уменьшилось — max-width вступает в силу
+   и ограничивает фотку. left и top остаются фикс на 375-значениях. */
+@media (max-width: 374.98px) {
+  .scatter.trees     { max-width: calc(100vw - 274.08px); }
+  .scatter.childhood { max-width: calc(100vw - 258.95px); }
+}
+
+/* ============================================================
+   КОНТАКТЫ
+   ============================================================ */
+/* отступы переведены с высоты окна (vh) на ширину (rem) — на FHD те же 151px/86px,
+   но теперь рама контактов едет синхронно с кругом (он тоже от ширины), а не «дышит» по высоте окна */
+.contact { padding: 7.57rem 0 4.33rem; text-align: left; overflow: hidden; }
+.contact .section-title { margin-bottom: 1.1rem; }
+.contact .closing {
+  font-family: "Manrope", sans-serif; font-weight: 400;
+  font-size: var(--fs-h2); line-height: 1.25;
+  letter-spacing: -0.01em; max-width: 32ch; margin-bottom: 6.49rem; /* было clamp(80px,12vh,130px): на FHD те же 130px, теперь от ширины */
+}
+.cta-zone { position: relative; display: flex; align-items: center; gap: 1.1rem; }
+/* «Написать» — больше не кнопка-переключатель, контакты видны всегда.
+   Стрелочка живёт ОТДЕЛЬНО — между словом и почтой, поэтому имеет свою симметричную анимацию. */
+.cta {
+  position: relative;
+  font-family: "Manrope", sans-serif; font-weight: 400;
+  font-size: var(--fs-h2); letter-spacing: -0.02em;
+  padding: 0.1rem 0.1rem 0.4rem; border: none; background: none; cursor: pointer;
+  color: var(--fg); white-space: nowrap; flex: none;
+}
+.cta::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: var(--orange); transform: scaleX(0); transform-origin: left;
+}
+.cta-arrow {
+  display: inline-block; color: var(--orange);
+  font-family: "Manrope", sans-serif; font-weight: 700;
+  font-size: var(--fs-h2); line-height: 1;
+  /* совпадает с паддингом у .cta — чтобы вертикальное центрирование во flex попадало точно */
+  padding: 0.1rem 0.1rem 0.4rem;
+}
+/* hover: стрелочка качается вправо-влево вокруг своего центра.
+   Используем linear-плавность с симметричной разбивкой — иначе на стыке циклов
+   возникает «нулевая скорость» и микропауза в центре. С linear центр проходится
+   на постоянной скорости, развороты — только на крайних точках, что естественно. */
+.cta:hover ~ .cta-arrow { animation: arrowFloat 1s linear infinite; }
+@keyframes arrowFloat {
+  0%   { transform: translateX(0); }
+  25%  { transform: translateX(5px); }
+  50%  { transform: translateX(0); }
+  75%  { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+/* click: линия протекает слева направо и растворяется (в 2 раза быстрее) + стрелочка делает
+   резкий, но симметричный тычок. Амплитуда такая же, как у hover (5px в каждую сторону),
+   но движение сжато по времени — за счёт скорости получается «дёрг». */
+.cta.clicked::after { animation: ctaLineFlow 0.3s ease-out; }
+.cta-zone .cta-arrow.clicked { animation: arrowPoke 0.42s cubic-bezier(.3,.7,.4,1.4); }
+@keyframes ctaLineFlow {
+  0%   { transform: scaleX(0); transform-origin: left; }
+  45%  { transform: scaleX(1); transform-origin: left; }
+  55%  { transform: scaleX(1); transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
+}
+@keyframes arrowPoke {
+  0%   { transform: translateX(0); }
+  30%  { transform: translateX(10px); }
+  60%  { transform: translateX(-10px); }
+  100% { transform: translateX(0); }
+}
+
+/* контакты — почта и телеграм — всегда видны рядом со стрелочкой */
+.cta-out {
+  display: flex; align-items: center; gap: 1.2rem;
+  padding-left: 0;
+  font-family: "Manrope", sans-serif; font-weight: 600; font-size: clamp(14px, 1.4vw, 16px);
+  white-space: nowrap;
+}
+.cta-out a { position: relative; color: var(--fg); text-decoration: none; }
+.cta-out a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px;
+  background: var(--orange); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.25s var(--ease);
+}
+.cta-out a:hover::after { transform: scaleX(1); }
+
+/* Двоеточие после «Написать» — показывается ТОЛЬКО на ≤720 (там «Написать:» работает как
+   заголовок над ссылками-контактами). На десктопе скрыто. */
+.cta-colon { display: none; }
+
+/* ============================================================
+   КОНТАКТЫ — мобильная раскладка (≤720)
+   ============================================================ */
+/* На узких контакты выстраиваются в два этажа:
+     Написать:
+     dduje71@mail.ru  TG: @dduje
+   Стрелочка прячется. Подчёркивание под ссылками теперь живёт всегда:
+   при появлении в кадре «всплывает» слева направо, дальше висит и раз в 8 секунд
+   делает «проскальзывание» (стирается с левого края, появляется снова слева). */
+@media (max-width: 720px) {
+  /* перевод раскладки в столбик: «Написать:» сверху, ссылки снизу одной строкой */
+  .cta-zone { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .cta-arrow { display: none; }
+  .cta-colon { display: inline; }
+  /* «Написать:» больше не кнопка — превращается в подпись. Курсор обычный,
+     отступы и анимации подчёркивания убираем (на тач они не активируются). */
+  .cta { padding: 0; cursor: default; }
+  .cta::after { display: none; }
+  /* ссылки в одну строку с увеличенным расстоянием — иначе двойная анимация
+     подчёркивания у двух ссылок зрительно сливается */
+  .cta-out { gap: 1.5rem; }
+  /* подчёркивание включено постоянно, циклится 8 секунд: 0.4с появление,
+     ~7.2с покой, 0.4с «уход» вправо, далее новый цикл. */
+  .cta-out a::after {
+    transition: none;
+    animation: lineSlide 8s linear infinite;
+  }
+}
+
+@keyframes lineSlide {
+  0%   { transform: scaleX(0); transform-origin: left; }
+  5%   { transform: scaleX(1); transform-origin: left; }
+  95%  { transform: scaleX(1); transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
+}
+
+/* ============================================================
+   КОНТАКТЫ — переопределения для media (после default правил)
+   ============================================================ */
+/* Эти блоки лежат В КОНЦЕ ФАЙЛА намеренно — чтобы по CSS cascade перебивать default
+   правила .contact / .closing / .section-title-shift, которые объявлены выше. */
+
+/* Стабилизация высоты .contact в диапазоне 1200-1499: фиксируем основные отступы в px
+   на их значениях с ширины 1500 (html font-size ≈ 16.7px). */
+@media (min-width: 1200px) and (max-width: 1499.98px) {
+  .contact                       { padding: 126px 0 72px; }
+  .contact .section-title-shift  { margin-bottom: 162px; }
+  .contact .closing              { margin-bottom: 108px; }
+  .contact .section-title        { margin-bottom: 18px; }
+}
+
+/* Мобильная раскладка <720: .contact растягивается через min-height чтобы поместить
+   childhood и сохранить padding-bottom. closing сужается до 230px, заголовок ближе →
+   закрытие текста на Y=350. margin-bottom у closing увеличен, cta-zone опускается → низ
+   cta на Y=650. */
+@media (max-width: 719.98px) {
+  .contact                       { min-height: 600px; }
+  .contact .section-title-shift  { margin-bottom: 93px; }
+  .contact .closing              { max-width: 230px; margin-bottom: 155px; }
+}
+
+/* На ≤520 closing-фраза начинает плавно сужаться — освобождает место для trees, которая
+   при сужении окна приближается к тексту. Формула линейно идёт от 230px на 520 до 140px
+   на 320, clamp ограничивает диапазон. */
+@media (max-width: 519.98px) {
+  .contact .closing { max-width: clamp(140px, calc(45vw - 4px), 230px); }
+}
+
+/* На ≤490 max-width замораживается на её 490-значении (216.5px) — дальше не сужается,
+   потому что trees начинает сама уменьшаться. И font-size текста тоже начинает
+   уменьшаться: 18→16px к 430, ниже 430 фикс на 16. */
+@media (max-width: 489.98px) {
+  .contact .closing {
+    max-width: 216.5px;
+    font-size: clamp(16px, calc(3.33vw + 1.68px), 18px);
+  }
+}
+
+/* На ≤440 closing-фраза снова начинает сужаться: с 216.5 на 440 → 163.3 на 400, ниже 400 фикс. */
+@media (max-width: 440px) {
+  .contact .closing { max-width: clamp(163.3px, calc(133vw - 368.7px), 216.5px); }
+}
+
+/* подсказка «Скопировано» — появляется рядом с почтой при клике */
+.copy-toast {
+  font-family: "Manrope", sans-serif; font-weight: 500;
+  font-size: clamp(12px, 1.1vw, 14px);
+  color: var(--fg-mut); white-space: nowrap;
+  opacity: 0; transform: translateX(-6px);
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+  pointer-events: none;
+}
+.copy-toast.show { opacity: 1; transform: none; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.foot {
+  position: relative;
+  z-index: 10;
+  padding: 1.8rem 0;
+  backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  border-top: 1px solid var(--hair);
+  font-family: "Manrope", sans-serif; font-size: var(--fs-foot); color: var(--fg-mut);
+}
+.foot .wrap {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+/* На телефонах подвал становится компактным:
+   — «/ Продюсер анимации» скрыто
+   — обе части в одной строке слева, выровненные по левой вертикали (var(--gutter))
+   — разделитель между частями — тот же «/», что внутри «Москва / 2026»
+   — высота подвала уменьшена в 2 раза (padding 18px вместо 36px) */
+@media (max-width: 720px) {
+  .foot { padding: 0.9rem 0; }
+  .foot-extra { display: none; }
+  .foot .wrap { justify-content: flex-start; gap: 0.5em; }
+  .foot .wrap span + span::before { content: "/"; margin-right: 0.5em; }
+}
+
+/* reveal-on-scroll */
+.reveal { opacity: 0; transform: translateY(1.3rem); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
+}

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="day">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вера Жаворонкова — Портфолио</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/styles2.css">
+</head>
+<body>
+
+
+<!-- ============ NAV ============ -->
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top"><span class="brand-full">Вера&nbsp;Жаворонкова</span><span class="brand-short">В.&nbsp;Жаворонкова</span> <span style="color:var(--fg-mut)">/ Портфолио</span></a>
+    <div class="nav-right">
+      <div class="nav-links">
+        <a href="#about"   data-spy="about"   style="--nc: var(--blue);">Обо мне</a>
+        <a href="#work"    data-spy="work"    style="--nc: var(--pink);">Как я работаю</a>
+        <a href="#cases"   data-spy="cases"   style="--nc: var(--orange);">Кейсы</a>
+        <a href="#contact" data-spy="contact" style="--nc: var(--violet);">Контакты</a>
+      </div>
+      <button class="burger" id="burgerBtn" aria-label="Меню" aria-expanded="false" aria-controls="mobileNav">
+        <span></span><span></span><span></span>
+      </button>
+      <button class="toggle" aria-label="Сменить тему день / ночь">
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+        </svg>
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 7 7 0 1 0 20 14.5z"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Мобильное меню — оверлей с теми же ссылками, что в шапке. Раскрывается по тапу на бургер. -->
+<div class="mobile-nav" id="mobileNav" aria-hidden="true">
+  <nav class="mobile-nav-list">
+    <a href="#about"   data-spy="about"   style="--nc: var(--blue);">Обо мне</a>
+    <a href="#work"    data-spy="work"    style="--nc: var(--pink);">Как я работаю</a>
+    <a href="#cases"   data-spy="cases"   style="--nc: var(--orange);">Кейсы</a>
+    <a href="#contact" data-spy="contact" style="--nc: var(--violet);">Контакты</a>
+  </nav>
+</div>
+
+<div class="shell" id="top">
+
+  <!-- ============ 1. ОБО МНЕ ============ -->
+  <section class="about" id="about">
+    <svg class="about-zigzag" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+      <polyline points="3000,-228 1080,390 1480,410 880,690 1120,690 250,940 490,960 -60,1110"
+        fill="none" stroke="var(--blue)" stroke-width="42" opacity="0.5"
+        stroke-linejoin="bevel" stroke-linecap="butt"
+        vector-effect="non-scaling-stroke" />
+    </svg>
+    <div class="wrap">
+      <div class="section-title-shift" data-parallax data-depth="0.7">
+        <h2 class="section-title reveal">Обо мне</h2>
+      </div>
+      <div class="about-grid">
+        <div class="about-text-col">
+          <div class="about-text-top reveal">
+            <p class="hello">Привет!</p>
+            <p class="lead">Меня зовут Вера, я&nbsp;продюсер анимации в&nbsp;рекламе.</p>
+          </div>
+          <div class="about-text-bottom reveal">
+            <p>Более трёх лет работаю с&nbsp;разными агентствами и&nbsp;продакшенами. Вела проекты для Авито, Яндекса, X5 и&nbsp;других брендов.</p>
+            <p>Я&nbsp;умею <span class="ac ac-blue">сложное делать простым</span>: прозрачно объяснять процессы и&nbsp;ценообразование клиентам, структурировать хранение файлов проекта, выстраивать пайплайн так, чтобы дедлайны не&nbsp;горели.</p>
+            <p>Короче&nbsp;—&nbsp;я&nbsp;из тех, кто наводит порядок и&nbsp;получает от&nbsp;этого удовольствие.</p>
+          </div>
+        </div>
+        <div class="about-photo reveal">
+          <div class="frame" data-parallax data-depth="1.7">
+            <img src="assets/vera-portrait.jpg" alt="Вера Жаворонкова">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. MARQUEE ============ -->
+  <section class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span class="item">БРИФ</span><span class="item sep">/</span>
+      <span class="item">СМЕТА</span><span class="item sep">/</span>
+      <span class="item">ТАЙМИНГ</span><span class="item sep">/</span>
+      <span class="item">ТЗ</span><span class="item sep">/</span>
+      <span class="item">ПРАВКИ</span><span class="item sep">/</span>
+      <span class="item">РЕНДЕР</span><span class="item sep">/</span>
+      <span class="item">ПРАВКИ</span><span class="item sep">/</span>
+      <span class="item">РЕНДЕР</span><span class="item sep">/</span>
+      <span class="item">СДАЧА</span><span class="item sep">/</span>
+    </div>
+  </section>
+
+  <!-- ============ 3. КАК Я РАБОТАЮ ============ -->
+  <section class="work" id="work">
+    <div class="wrap">
+      <div class="section-title-shift" data-parallax data-depth="0.7">
+        <h2 class="section-title work-h reveal">Как я работаю</h2>
+      </div>
+      <div class="worklist">
+        <div class="wtitles">
+          <button class="wtitle" data-i="0" style="--c: var(--yellow);">Структура как суперсила</button>
+          <button class="wtitle" data-i="1" style="--c: var(--lime);">Полное ведение проекта</button>
+          <button class="wtitle" data-i="2" style="--c: var(--blue);">Думаю наперёд</button>
+          <button class="wtitle" data-i="3" style="--c: var(--pink);">Строю процессы</button>
+        </div>
+        <div class="wpanel">
+          <p class="wdesc" data-i="0">Сметы, тайминги, ТЗ, письма клиентам. Если что‑то можно разложить по&nbsp;полочкам, я&nbsp;это разложу.</p>
+          <p class="wdesc" data-i="1">Контролирую процессы от&nbsp;брифа до&nbsp;финального рендера.</p>
+          <p class="wdesc" data-i="2">Анализирую проект на&nbsp;старте, продумываю пайплайн и&nbsp;заранее проговариваю с&nbsp;клиентом, где могут быть ограничения. Большинство проблем решаются до&nbsp;того, как становятся проблемами.</p>
+          <p class="wdesc" data-i="3">Не&nbsp;только веду проекты, но&nbsp;и&nbsp;настраиваю то, как они ведутся. Разрабатываю и&nbsp;оптимизирую шаблоны, регламенты, онбординг команды.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. КЕЙСЫ ============ -->
+  <section class="cases" id="cases">
+    <div class="wrap cases-head">
+      <div class="section-title-shift" data-parallax data-depth="0.7">
+        <h2 class="section-title reveal">Кейсы</h2>
+      </div>
+    </div>
+
+    <button class="case-arrow prev" data-case-prev aria-label="Назад">
+      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M24 8L12 20l12 12"/></svg>
+    </button>
+    <button class="case-arrow next" data-case-next aria-label="Вперёд">
+      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8l12 12-12 12"/></svg>
+    </button>
+
+    <div class="case-viewport">
+      <div class="case-track">
+
+        <!-- Slide 1 — Авито -->
+        <div class="case-slide">
+          <div class="case l1" style="--accent: var(--blue);">
+            <div class="media">
+              <!--
+                ВИДЕО: положите файл в assets/cases/avito/video.mp4 — оно подключится автоматически.
+                Хотите embed (YouTube / Vimeo / Cloudflare Stream)? Замените data-video-src на data-video-embed="ссылка".
+              -->
+              <div class="player has-poster" data-video-src="assets/cases/avito/video.mp4">
+                <img class="poster" src="assets/cases/avito/poster.jpg" alt="Кадр из ролика Авито работа — портал из бумаг">
+                <div class="play" aria-label="Запустить видео" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                <div class="ph-label">видео — скоро · 3D‑лабиринт · бренд‑анимация</div>
+              </div>
+            </div>
+            <div class="info">
+              <div class="meta"><span class="proj">Авито&nbsp;Работа</span><span class="org">SPOT Production&nbsp;/ Авито</span></div>
+              <p class="desc">Рекламный ролик для сервиса Авито&nbsp;Работа с&nbsp;большим объёмом постпродакшена.</p>
+              <p class="desc">Я&nbsp;вошла в&nbsp;проект ещё на&nbsp;этапе препродакшена, чтобы провести качественный RnD, также присутствовала на&nbsp;съёмках и&nbsp;вела весь пост: подбирала команду, координировала отделы, ежедневно была на&nbsp;связи с&nbsp;клиентом.</p>
+              <p class="challenge"><b>Вызов:</b> сжатые сроки, комплексный пост и&nbsp;строгий бренд‑бук, описывающий даже радиус скругления углов у&nbsp;портала.</p>
+            </div>
+            <figure class="shot s1"><img src="assets/cases/avito/shot-1.jpg" alt="Портал-арка из бумаг, неон"></figure>
+            <figure class="shot s2"><img src="assets/cases/avito/shot-2.jpg" alt="10 миллионов соискателей"></figure>
+            <figure class="shot s3"><img src="assets/cases/avito/shot-3.jpg" alt="Съёмка: герои у горы документов"></figure>
+          </div>
+        </div>
+
+        <!-- Slide 2 — МегаФон -->
+        <div class="case-slide">
+          <div class="case l2" style="--accent: var(--yellow);">
+            <div class="media">
+              <div class="player has-poster" data-video-src="assets/cases/beeline/video.mp4">
+                <img class="poster" src="assets/cases/beeline/poster.jpg" alt="Кадр из ролика Билайн — Дикая Мята">
+                <div class="play" aria-label="Запустить видео" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                <div class="ph-label">видео — скоро · 2D‑анимация · инфографика</div>
+              </div>
+            </div>
+            <div class="info">
+              <div class="meta"><span class="proj">Билайн&nbsp;—&nbsp;Дикая&nbsp;Мята</span><span class="org">AVA Studio&nbsp;/ Билайн</span></div>
+              <p class="desc">Имиджевый ролик для участия в&nbsp;фестивале: 2D‑анимация, инфографика, реальные фото и&nbsp;видео с&nbsp;мероприятия.</p>
+              <p class="desc">Я&nbsp;вела производство ролика: подбор команды, постановка задач, коммуникация с&nbsp;агентством, структуризация материалов, контроль сроков и&nbsp;бюджета.</p>
+              <p class="challenge"><b>Нюанс:</b> нерекламный хронометраж&nbsp;—&nbsp;нужно было рассказать структурно о&nbsp;большой работе, не&nbsp;потеряв ни&nbsp;смысл, ни&nbsp;ритм.</p>
+            </div>
+            <figure class="shot s1"><img src="assets/cases/beeline/shot-1.jpg" alt="Кадр из проекта Билайн — Дикая Мята"></figure>
+            <figure class="shot s2"><img src="assets/cases/beeline/shot-2.jpg" alt="Кадр из проекта Билайн — Дикая Мята"></figure>
+            <figure class="shot s3"><img src="assets/cases/beeline/shot-3.jpg" alt="Кадр из проекта Билайн — Дикая Мята"></figure>
+          </div>
+        </div>
+
+        <!-- Slide 3 — Х5 (no video, postcard constructor) -->
+        <div class="case-slide">
+          <div class="case l3" style="--accent: var(--lime);">
+            <div class="media">
+              <div class="site">
+                <div class="bar"><span></span><span></span><span></span><i>x5-konstruktor.ru</i></div>
+                <div class="screen"><img src="assets/cases/x5/landing-top.jpg" alt="Лендинг-конструктор открыток X5 — верхний экран"></div>
+              </div>
+            </div>
+            <div class="info">
+              <div class="meta"><span class="proj">Х5&nbsp;—&nbsp;День работника торговли</span><span class="org">Родня&nbsp;/ Х5</span></div>
+              <p class="desc">Намеренно китчевая кампания ко&nbsp;Дню работника торговли в&nbsp;стилистике «открыток от&nbsp;бабушки в&nbsp;вотсап».</p>
+              <p class="desc">Я&nbsp;продюсировала весь скоп: создание открыток, их&nbsp;анимацию для медиафасадов и&nbsp;разработку полноценного сайта‑конструктора, где сотрудники могли собирать открытки сами.</p>
+              <p class="challenge"><b>Вызов:</b> работа с&nbsp;нетипичной дизайн‑задачей. Классический подход к&nbsp;внутренней оценке материалов здесь не&nbsp;работал, и&nbsp;нам с&nbsp;командой пришлось заново придумать, как вообще фильтровать результат.</p>
+            </div>
+            <figure class="shot s1"><img src="assets/cases/x5/card.jpg" alt="Открытка «С днём торговли»"></figure>
+            <figure class="shot s2"><img src="assets/cases/x5/facade-1.jpg" alt="Медиафасад X5 — День работника торговли"></figure>
+            <figure class="shot s3"><img src="assets/cases/x5/facade-2.jpg" alt="Медиафасад X5 — «Когда продавцы улыбаются»"></figure>
+          </div>
+        </div>
+
+        <!-- Slide 4 — Кидз Комбо -->
+        <div class="case-slide">
+          <div class="case l4" style="--accent: var(--orange);">
+            <div class="media">
+              <div class="player has-poster" data-video-src="assets/cases/kidz/video.mp4">
+                <img class="poster" src="assets/cases/kidz/poster.jpg" alt="Кадр из ролика Кидз Комбо — браслет «Вместе с папой»">
+                <div class="play" aria-label="Запустить видео" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                <div class="ph-label">видео — скоро · персонажная анимация · фур и грум</div>
+              </div>
+            </div>
+            <div class="info">
+              <div class="meta"><span class="proj">Кидз&nbsp;Комбо ×&nbsp;Фонд «Семья&nbsp;вместе»</span><span class="org">Re Studio&nbsp;/ RoRe&nbsp;/ Вкусно и&nbsp;точка</span></div>
+              <p class="desc">Анимационный ролик для коллаборации Вкусно и&nbsp;точка и&nbsp;благотворительного фонда.</p>
+              <p class="desc">Я&nbsp;вела проект через агентство: координировала производственную команду, контролировала бюджет и&nbsp;сроки. Проект сдан за&nbsp;месяц.</p>
+              <p class="challenge"><b>Вызов:</b> мимика персонажей для детской аудитории&nbsp;—&nbsp;дети считывают эмоции очень точно, здесь не&nbsp;было права на&nbsp;«примерно похоже на&nbsp;радость».</p>
+            </div>
+            <figure class="shot s1"><img src="assets/cases/kidz/shot-1.jpg" alt="Персонаж среди джунглей"></figure>
+            <figure class="shot s2"><img src="assets/cases/kidz/shot-2.jpg" alt="Разработка персонажа"></figure>
+            <figure class="shot s3"><img src="assets/cases/kidz/shot-3.jpg" alt="2D-анимация: герой и львёнок"></figure>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="wrap case-counter">
+      <span data-case-num>01</span>
+      <span class="bar"><i></i></span>
+      <span>04</span>
+    </div>
+  </section>
+
+  <!-- ============ 5.5–6. ОБЁРТКА: ПРИПИСКА + КОНТАКТЫ + ФОН-ДУГА ============ -->
+  <div class="deco-arc-wrap">
+    <svg class="deco-arc" viewBox="0 -120 1920 1250" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <g class="deco-arc-spin">
+        <!-- Волнистый круг. Атрибут d (форма волны) генерируется в script.js
+             на основе констант ARC_RADIUS / ARC_AMPLITUDE / ARC_WAVES — см. там. -->
+        <path class="deco-arc-path"
+          fill="none" stroke="var(--violet)" stroke-width="42"
+          stroke-linejoin="round" stroke-linecap="round"
+          vector-effect="non-scaling-stroke"
+          opacity="0.5" />
+      </g>
+    </svg>
+
+  <!-- ============ 5.5. МЕЖСЕКЦИОННАЯ ПРИПИСКА ============ -->
+  <section class="cases-outro">
+    <div class="wrap">
+      <p class="cases-outro-text reveal">Я&nbsp;показала четыре проекта, разных по&nbsp;задачам и&nbsp;форматам,&nbsp;—&nbsp;это срез того, чем я&nbsp;занимаюсь чаще всего. В&nbsp;портфолио <span class="ac ac-violet">работ гораздо больше</span>, но&nbsp;я&nbsp;не&nbsp;захотела нагружать ими сайт. Если хочется посмотреть больше&nbsp;—&nbsp;напишите, с&nbsp;радостью поделюсь.</p>
+    </div>
+  </section>
+
+  <!-- ============ 6. КОНТАКТЫ ============ -->
+  <section class="contact" id="contact">
+    <div class="wrap">
+      <div class="section-title-shift" data-parallax data-depth="0.7">
+        <h2 class="section-title reveal">Контакты</h2>
+      </div>
+      <p class="closing reveal">Если вы&nbsp;ищете продюсера, который возьмёт проект и&nbsp;<span class="ac ac-orange">не&nbsp;потеряет его по&nbsp;дороге</span>&nbsp;—&nbsp;напишите&nbsp;мне.</p>
+      <div class="cta-zone reveal">
+        <button class="cta" id="ctaBtn">Написать<span class="cta-colon">:</span></button>
+        <span class="cta-arrow" id="ctaArrow" aria-hidden="true">→</span>
+        <div class="cta-out" id="ctaOut">
+          <a href="mailto:dduje71@mail.ru" id="mailLink" data-copy="dduje71@mail.ru">dduje71@mail.ru</a>
+          <a href="https://t.me/dduje" target="_blank" rel="noopener">TG: @dduje</a>
+          <span class="copy-toast" id="copyToast" aria-live="polite">Скопировано</span>
+        </div>
+      </div>
+    </div>
+
+    <figure class="scatter trees" data-parallax data-depth="1.5" data-ease="0.10">
+      <img src="assets/scatter-trees.jpg" alt="">
+    </figure>
+    <figure class="scatter childhood" data-parallax data-depth="1.25" data-ease="0.06">
+      <img src="assets/scatter-childhood.jpg" alt="">
+    </figure>
+    <figure class="scatter night" data-parallax data-depth="1.55" data-ease="0.04">
+      <img src="assets/scatter-night.jpg" alt="">
+    </figure>
+  </section>
+  </div>
+  <!-- /.deco-arc-wrap -->
+
+  <footer class="foot">
+    <div class="wrap">
+      <span>Вера&nbsp;Жаворонкова<span class="foot-extra">&nbsp;/ Продюсер&nbsp;анимации</span></span>
+      <span>Москва&nbsp;/ 2026</span>
+    </div>
+  </footer>
+
+</div>
+
+<script src="assets/script.js"></script>
+</body>
+</html>

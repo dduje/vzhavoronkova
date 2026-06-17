@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1650" font-family="Inter, Arial, sans-serif">
+  <!-- ====== ФОН РАБОЧЕЙ ОБЛАСТИ ====== -->
+  <rect x="0" y="0" width="1920" height="1650" fill="#FBFBF9"/>
+
+  <!-- ====== ГРАНИЦА: НИЗ БЛОКА КЕЙСОВ (y=0) ====== -->
+  <line x1="0" y1="0" x2="1920" y2="0" stroke="#FF3B6B" stroke-width="3" stroke-dasharray="14 10"/>
+  <text x="20" y="34" font-size="26" font-weight="700" fill="#FF3B6B">▲ НИЗ БЛОКА КЕЙСОВ — выше этой линии круг заходить НЕ должен</text>
+
+  <!-- ====== ГРАНИЦА: НИЗ СТРАНИЦЫ / ПОДВАЛ (y=1199) ====== -->
+  <line x1="0" y1="1199" x2="1920" y2="1199" stroke="#FF3B6B" stroke-width="3" stroke-dasharray="14 10"/>
+  <text x="20" y="1186" font-size="26" font-weight="700" fill="#FF3B6B">НИЗ СТРАНИЦЫ (нижний край подвала) — ниже ничего не видно</text>
+
+  <!-- ====== КРУГ — ЕДИНСТВЕННЫЙ РЕДАКТИРУЕМЫЙ ОБЪЕКТ. ДВИГАЙТЕ ЕГО ====== -->
+  <!-- center (cx,cy)=(546,813), radius=794, обводка 42 как у зигзага «обо мне» -->
+  <circle id="krug" cx="546" cy="813" r="794" fill="none" stroke="#7C5CFF" stroke-width="42" opacity="0.5"/>
+  <text x="470" y="50" font-size="24" font-weight="700" fill="#7C5CFF">КРУГ ← двигайте/масштабируйте меня</text>
+
+  <!-- ====== ПРИПИСКА (текст, который круг «обнимает») — ОРИЕНТИР ====== -->
+  <rect x="200" y="137" width="720" height="124" fill="none" stroke="#C9C7D6" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <g fill="#1A1922" font-size="24">
+    <text x="200" y="170">Я показала четыре проекта, разных по задачам и форматам, —</text>
+    <text x="200" y="202">это срез того, чем я занимаюсь чаще всего. В портфолио</text>
+    <text x="200" y="234">работ гораздо больше, но я не захотела нагружать ими сайт.</text>
+    <text x="200" y="266">Если хочется посмотреть больше — напишите, с радостью поделюсь.</text>
+  </g>
+
+  <!-- ====== ЗАГОЛОВОК «КОНТАКТЫ» — ОРИЕНТИР ====== -->
+  <text x="576" y="548" font-size="64" font-weight="700" fill="#1A1922">Контакты</text>
+
+  <!-- ====== ТЕКСТ «Если вы ищете продюсера…» — ОРИЕНТИР ====== -->
+  <rect x="200" y="746" width="585" height="112" fill="none" stroke="#C9C7D6" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <g fill="#1A1922" font-size="30">
+    <text x="200" y="792">Если вы ищете продюсера, который возьмёт</text>
+    <text x="200" y="832">проект и не потеряет его по дороге — напишите мне.</text>
+  </g>
+
+  <!-- ====== КНОПКИ «Написать / почта / TG» — ОРИЕНТИР ====== -->
+  <rect x="200" y="988" width="640" height="51" fill="none" stroke="#C9C7D6" stroke-width="1.5" stroke-dasharray="6 6"/>
+  <text x="200" y="1022" font-size="28" fill="#1A1922">Написать  →   dduje71@mail.ru     TG: @dduje</text>
+
+  <!-- ====== ФОТО КОНТАКТОВ — ОРИЕНТИРЫ ====== -->
+  <g>
+    <rect x="1480" y="545" width="225" height="301" rx="6" fill="#DAD8E2"/>
+    <text x="1492" y="585" font-size="20" fill="#6E6B7B">фото 1</text>
+    <rect x="1106" y="719" width="180" height="268" rx="6" fill="#DAD8E2"/>
+    <text x="1118" y="759" font-size="20" fill="#6E6B7B">фото 2</text>
+    <rect x="1384" y="860" width="264" height="176" rx="6" fill="#DAD8E2"/>
+    <text x="1396" y="900" font-size="20" fill="#6E6B7B">фото 3</text>
+  </g>
+
+  <!-- ====== ПОДВАЛ — ОРИЕНТИР (стоит на линии «низ страницы») ====== -->
+  <rect x="0" y="1099" width="1920" height="100" fill="#F2F1EE" stroke="#E2E0DA" stroke-width="1"/>
+  <text x="200" y="1155" font-size="22" fill="#6E6B7B">Вера Жаворонкова / Продюсер анимации</text>
+  <text x="1500" y="1155" font-size="22" fill="#6E6B7B">Москва / 2026</text>
+</svg>

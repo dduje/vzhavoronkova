@@ -1,0 +1,638 @@
+/* ============================================================
+   Вера Жаворонкова — Портфолио
+   Type: Manrope (headings/labels), Nunito Sans (body)
+   ============================================================ */
+
+:root {
+  /* accents */
+  --blue:   #00CFFF;
+  --lime:   #CCFF00;
+  --yellow: #FFE500;
+  --pink:   #FF6BFF;
+  --orange: #FF8A00;
+  /* readable on BOTH white & black — used where neon washes out */
+  --violet: #7C5CFF;
+
+  /* day mode defaults */
+  --bg:      #ffffff;
+  --bg-soft: #f4f4f2;
+  --fg:      #111111;
+  --fg-mut:  #8b8b88;
+  --hair:    rgba(17,17,17,0.12);
+  --card:    #ffffff;
+
+  --glow-strength: 0; /* 0 in day, 1 in night */
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ---- unified type scale (one system for every block) ----
+     H1  = block titles: Обо мне / Как я работаю / Кейсы / Контакты
+     H2  = greeting "Привет!", work theses, case names, contacts closing
+     body= about text, work descriptions, case texts
+     nav = чердак, foot = подвал */
+  --fs-h1:    3.3rem;   /* ≈53px при базовых 16px */
+  --fs-h2:    1.5rem;   /* ≈24px */
+  --fs-body:  1rem;     /* = базовый размер */
+  --fs-nav:   0.9rem;   /* ≈14.5px */
+  --fs-foot:  0.875rem; /* ≈14px */
+  --fs-label: 0.8rem;   /* ≈13px */
+
+  /* горизонтальный «отступ от края» — единый для шапки, текста и кейсов */
+  --gutter:   clamp(32px, 11vw, 200px);
+}
+
+[data-theme="night"] {
+  --bg:      #0f0f0f;
+  --bg-soft: #161616;
+  --fg:      #efefef;
+  --fg-mut:  #6f6f6f;
+  --hair:    rgba(239,239,239,0.12);
+  --card:    #141414;
+  --glow-strength: 1;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+/* «главная ручка масштаба»: базовый размер шрифта плавно едет от 15px (узкие
+   ноутбуки) до 22px (мониторы 2180px+), проходя через 16px ≈ на 1440px.
+   Всё, что записано в rem, масштабируется вместе с этой ручкой. */
+html { scroll-behavior: smooth; scroll-padding-top: 0; font-size: clamp(15px, 0.78vw + 5px, 22px); overflow-x: hidden; }
+
+/* На viewport >1920 весь сайт пропорционально масштабируется через zoom — всё (включая
+   fixed-элементы, шрифты, отступы, фотки) растёт вместе с шириной окна, как «растянутая
+   картинка». Применяется на html, чтобы zoom охватывал и body, и все fixed children. */
+@media (min-width: 1921px) {
+  html { zoom: calc(100vw / 1920px); }
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Nunito Sans", system-ui, sans-serif;
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background 0.55s var(--ease), color 0.55s var(--ease);
+}
+
+
+.shell { position: relative; z-index: 1; }
+
+/* ---------- type ---------- */
+.font-head { font-family: "Manrope", system-ui, sans-serif; }
+
+.label {
+  font-family: "Manrope", sans-serif;
+  font-weight: 500;
+  font-size: var(--fs-label);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-mut);
+}
+
+h2.section-title {
+  font-family: "Manrope", sans-serif;
+  font-weight: 700;
+  font-size: var(--fs-h1);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+/* обёртка вокруг заголовков секций: сдвигает заголовок к 30% ширины экрана
+   и даёт параллакс, сам h2 внутри получает reveal-анимацию без конфликта transform */
+.section-title-shift {
+  text-align: left;
+  /* левый край заголовка = 30% от ширины экрана (с учётом внешнего gutter у .wrap).
+     На >1920 кэпится на FHD-значении 376px, чтобы zoom не давал двойного увеличения. */
+  margin-left: min(376px, calc(30vw - var(--gutter)));
+  margin-bottom: 4.32rem; /* было clamp(50px,8vh,100px): на FHD те же ~86px, теперь от ширины */
+  will-change: transform;
+}
+
+p { text-wrap: pretty; }
+
+/* ---------- accents + glow ---------- */
+.ac {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+  text-decoration-skip-ink: none;
+}
+.ac-blue   { text-decoration-color: var(--blue); }
+.ac-orange { text-decoration-color: var(--orange); }
+.ac-lime   { text-decoration-color: var(--lime); }
+.ac-yellow { text-decoration-color: var(--yellow); }
+.ac-pink   { text-decoration-color: var(--pink); }
+.ac-violet { text-decoration-color: var(--violet); }
+
+/* контент всегда выше слоя зерна */
+.about-grid, .contact .wrap { position: relative; z-index: 1; }
+
+/* ---------- layout helpers ---------- */
+.wrap { padding: 0 var(--gutter); }
+section { position: relative; }
+
+/* Высоту секций НЕ привязываем к высоте окна — они растут по содержимому.
+   (Раньше было min-height: 100vh — это «надувало» короткие блоки пустотой
+   и привязывало вёрстку к высоте экрана. Эталонные позиции объектов внутри
+   блоков заданы своими отступами/координатами и от этого не зависят.) */
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  padding: 1.1rem 0;
+  backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.4s var(--ease), background 0.55s var(--ease);
+}
+.nav-inner { display: flex; align-items: baseline; justify-content: space-between; }
+.nav.scrolled { border-bottom-color: var(--hair); }
+.nav .brand {
+  font-family: "Manrope", sans-serif;
+  font-weight: 500; font-size: 15px; letter-spacing: 0.01em;
+  color: var(--fg); text-decoration: none;
+  white-space: nowrap;
+}
+/* Адаптивный бренд: на узких помещаем «В. Жаворонкова», полное имя прячем,
+   шрифт делаем чуть мельче, и выравнивание элементов шапки переключаем с baseline на center
+   (на узких в шапке нет разноразмерного текста, baseline даёт перекос). */
+.brand-short { display: none; }
+@media (max-width: 720px) {
+  .brand-full { display: none; }
+  .brand-short { display: inline; }
+  .nav .brand { font-size: 13px; }
+  .nav-inner { align-items: center; }
+}
+.nav-right { display: flex; align-items: center; gap: clamp(16px, 2.4vw, 36px); }
+.nav-links { display: flex; gap: clamp(16px, 2.2vw, 34px); }
+.nav-links a {
+  position: relative;
+  font-family: "Manrope", sans-serif; font-weight: 500; font-size: var(--fs-nav);
+  color: var(--fg); text-decoration: none; opacity: 0.7;
+  padding-bottom: 0.3rem;
+  transition: opacity 0.2s;
+}
+.nav-links a:hover { opacity: 1; }
+/* colored underline — grows on hover, stays when section is active */
+.nav-links a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: var(--nc, var(--fg));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.32s var(--ease);
+}
+.nav-links a:hover::after,
+.nav-links a.active::after { transform: scaleX(1); }
+.nav-links a.active { opacity: 1; }
+
+/* minimalist theme toggle — just a swapping icon */
+.toggle {
+  position: relative; width: 34px; height: 34px; flex: none;
+  border: none; background: none; cursor: pointer; color: var(--fg);
+  display: grid; place-items: center; opacity: 0.78;
+  transition: opacity 0.2s, transform 0.4s var(--ease);
+}
+.toggle:hover { opacity: 1; transform: rotate(12deg); }
+.toggle svg { width: 19px; height: 19px; display: block; grid-area: 1 / 1; }
+.toggle .moon { display: none; }
+[data-theme="night"] .toggle .sun  { display: none; }
+[data-theme="night"] .toggle .moon { display: block; }
+
+@media (max-width: 720px) {
+  .nav-links { display: none; }
+}
+
+/* ============================================================
+   БУРГЕР + МОБИЛЬНОЕ МЕНЮ
+   ============================================================ */
+/* Иконка-бургер: три горизонтальные полоски. При открытии меню превращается в крестик.
+   По умолчанию скрыта — показывается на узких (правило в конце этого блока). */
+.burger {
+  display: none;
+  position: relative;
+  width: 24px; height: 24px;
+  border: none; background: none; cursor: pointer; padding: 0;
+  z-index: 70; /* выше оверлея (60) — крестик остаётся кликабельным поверх меню */
+  flex: none;
+  color: var(--fg);
+}
+.burger span {
+  position: absolute; left: 3px;
+  width: 18px; height: 0.7px; border-radius: 1px;
+  background: currentColor; opacity: 0.78;
+  transition: transform 0.3s var(--ease), opacity 0.25s var(--ease), top 0.3s var(--ease);
+}
+.burger span:nth-child(1) { top: 7px; }
+.burger span:nth-child(2) { top: 12px; }
+.burger span:nth-child(3) { top: 17px; }
+/* Состояние «открыто» — три полоски складываются в крестик */
+.burger.open span:nth-child(1) { top: 12px; transform: rotate(45deg); }
+.burger.open span:nth-child(2) { opacity: 0; }
+.burger.open span:nth-child(3) { top: 12px; transform: rotate(-45deg); }
+
+/* Оверлей. Лежит ПОД шапкой (z-index 40, шапка — 50), чтобы бренд и крестик
+   оставались видимыми сверху. Фон — полупрозрачный с blur (как у шапки/подвала). */
+.mobile-nav {
+  position: fixed; inset: 0; z-index: 40;
+  background: color-mix(in srgb, var(--bg) 65%, transparent);
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease);
+  /* блок ссылок центрируем по вертикали, слева — тот же отступ что у бренда в шапке */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: var(--gutter);
+}
+.mobile-nav.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.mobile-nav-list {
+  display: flex; flex-direction: column;
+  /* ссылки выровнены по ЛЕВОМУ краю в рамках общего блока (все начинаются с одной вертикали);
+     сам блок центрирован по экрану через flex на родителе .mobile-nav */
+  align-items: flex-start;
+  gap: 2.2rem;
+  text-align: left;
+}
+.mobile-nav-list a {
+  position: relative;
+  font-family: "Manrope", sans-serif; font-weight: 500;
+  font-size: var(--fs-h2);
+  letter-spacing: -0.01em;
+  color: var(--fg); text-decoration: none;
+  padding-bottom: 0.4rem;
+  /* стартовое состояние для анимации появления — будет переопределено при .open */
+  opacity: 0;
+  transform: translateY(1rem);
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+}
+.mobile-nav.open .mobile-nav-list a {
+  opacity: 1;
+  transform: none;
+}
+/* последовательное появление ссылок (шаг 60ms) */
+.mobile-nav.open .mobile-nav-list a:nth-child(1) { transition-delay: 0.10s; }
+.mobile-nav.open .mobile-nav-list a:nth-child(2) { transition-delay: 0.16s; }
+.mobile-nav.open .mobile-nav-list a:nth-child(3) { transition-delay: 0.22s; }
+.mobile-nav.open .mobile-nav-list a:nth-child(4) { transition-delay: 0.28s; }
+/* цветное подчёркивание — растёт при активной секции, как в десктопной навигации */
+.mobile-nav-list a::after {
+  content: "";
+  position: absolute; left: 0; bottom: 0; height: 3px;
+  width: 100%; background: var(--nc, var(--fg));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.32s var(--ease);
+}
+.mobile-nav-list a.active::after { transform: scaleX(1); }
+
+/* Блокировка скролла страницы, когда мобильное меню открыто */
+body.nav-open { overflow: hidden; }
+/* Шапка при открытом меню становится прозрачной — bренд и кнопки висят
+   прямо на blur-фоне оверлея, без двойного затемнения от собственного фона шапки.
+   Тонкую серую границу СНИЗУ оставляем — она отделяет шапку от области меню. */
+body.nav-open .nav {
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom-color: var(--hair);
+}
+
+/* Активация бургера на узких — после всех правил выше, чтобы каскад не перебил display: none */
+@media (max-width: 720px) {
+  .burger { display: block; }
+}
+
+/* ============================================================
+   HERO / О СЕБЕ
+   ============================================================ */
+.about {
+  /* отступы переведены с vh на rem — на FHD те же 151/130px, но едут с шириной, не с высотой */
+  padding-top: 7.57rem;
+  padding-bottom: 6.48rem;
+  position: relative;
+  overflow: hidden;
+}
+.about > .wrap { position: relative; z-index: 1; }
+.about-zigzag {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+/* В тёмной теме линия остаётся базового синего цвета, но опускаем opacity
+   ещё чуть ниже (0.4 vs 0.5 в светлой), чтобы фоновая деталь читалась едва-едва
+   и не перебивала контент. */
+[data-theme="night"] .about-zigzag polyline {
+  opacity: 0.57;
+}
+.about-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(40px, 7vw, 110px);
+  align-items: center;
+}
+/* На десктопе обе текстовые секции живут внутри .about-text-col (col 1), photo в col 2. */
+.about-text-col    { max-width: 28rem; }
+.about-photo       { /* grid-area задаётся только на ≤860 (см. ниже) */ }
+
+.about-text-top p,
+.about-text-bottom p { margin-bottom: 0.9rem; color: var(--fg); font-size: var(--fs-body); }
+/* «Привет!» — стиль H2 */
+.about-text-top .hello {
+  font-family: "Manrope", sans-serif;
+  font-weight: 500;
+  font-size: var(--fs-h2);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  margin-bottom: 4rem; /* было clamp(56px,8vh,80px): на FHD те же 80px, теперь от ширины */
+}
+.about-text-top p.lead { font-weight: 400; }
+
+.about-photo {
+  position: relative;
+  justify-self: end;
+  width: min(100%, 21rem);
+}
+.about-photo .frame {
+  position: relative; border-radius: 4px; overflow: hidden;
+  aspect-ratio: 960 / 1280;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.about-photo .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* На ≤680 раскладка перестраивается в вертикальную:
+     Привет!
+     Меня зовут Вера…           (во всю ширину)
+     [фото]                     (выровнено слева, на одной линии с текстом)
+     Более трёх лет…            (во всю ширину)
+   Реализация: обе обёртки получают display: contents → .hello, .lead, .about-photo,
+   .about-text-bottom становятся прямыми grid-детьми и разносятся по grid-areas.
+   Фото на 680 = 17.6rem (15% больше, чем было в десктоп-2-колоночной раскладке).
+   На очень узких начнёт уменьшаться только когда упрётся в gutter (через min(100%, ...)). */
+@media (max-width: 680px) {
+  .about-text-col { display: contents; }
+  .about-text-top { display: contents; }
+  .about-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "hello"
+      "lead"
+      "photo"
+      "bottom";
+    gap: clamp(16px, 3vw, 32px);
+    align-items: start;
+  }
+  .about-text-top .hello { grid-area: hello; margin-bottom: 0; }
+  .about-text-top p.lead { grid-area: lead; }
+  .about-photo {
+    grid-area: photo;
+    justify-self: start;
+    width: min(100%, 17.6rem);
+  }
+  .about-text-bottom { grid-area: bottom; max-width: none; }
+}
+
+/* ============================================================
+   MARQUEE
+   ============================================================ */
+.marquee {
+  padding: 2.7rem 0; /* было clamp(28px,5vh,56px): на FHD те же 54px, теперь от ширины */
+  border-top: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.marquee-track {
+  display: inline-flex; align-items: baseline; gap: 0;
+  will-change: transform;
+}
+.marquee-track .item {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: clamp(18px, 3vw, 42px);
+  letter-spacing: -0.01em;
+  padding: 0 0.28em;
+  color: var(--fg);
+}
+.marquee-track .sep { color: var(--orange); font-weight: 700; padding: 0 0.1em; }
+
+/* ============================================================
+   КАК Я РАБОТАЮ — title list + colored line + reactive text panel
+   ============================================================ */
+.work { padding: 7.57rem 0 5.4rem; } /* было vh — на FHD те же 151/108px */
+/* отступ снизу теперь задаётся обёрткой .section-title-shift */
+.work-h { margin-bottom: 0; }
+/* в «Как я работаю» отступ под заголовком чуть больше базового (+20%),
+   чтобы тезисы немного «дышали» от заголовка */
+.work .section-title-shift { margin-bottom: 5.4rem; } /* было clamp(60px,10vh,120px) — на FHD 108px */
+/* в «Кейсах» — большой отступ между заголовком и первым проектом,
+   чтобы блок ощущался дышащим */
+.cases .section-title-shift { margin-bottom: 5.67rem; } /* было clamp(70px,10.5vh,122px) — на FHD ~113px */
+/* в «Контактах» — такой же увеличенный гэп, как в «Как я работаю» */
+.contact .section-title-shift { margin-bottom: 9.73rem; } /* было clamp(120px,18vh,200px): на FHD те же 194px, теперь от ширины */
+
+.worklist {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: start;
+}
+.wtitles { display: flex; flex-direction: column; }
+.wtitle {
+  position: relative; overflow: visible;
+  appearance: none; border: none; background: none; cursor: pointer;
+  text-align: left; width: 100%;
+  display: flex; align-items: center;
+  min-height: 5.2rem; /* было clamp(78px,10vh,104px) — на FHD те же 104px */
+  font-family: "Manrope", sans-serif; font-weight: 700;
+  font-size: var(--fs-h2); letter-spacing: -0.02em; line-height: 1.05;
+  white-space: nowrap;
+  color: var(--fg);
+  padding: 0.3rem 1.2rem;
+  border-left: 4px solid var(--c);            /* segments stack into one line */
+  transition: color 0.3s var(--ease);
+}
+/* Подсветка-полоска. Ширина статичная (80%), анимируется через scaleX —
+   width-transition на ::before иногда «проскакивает» при изменении класса (особенно
+   на тач-устройствах при добавлении .on через JS), а transform-transition всегда
+   срабатывает надёжно (GPU-accelerated). Визуально — то же «выезжание слева». */
+.wtitle::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 100%;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--c) 30%, transparent), transparent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.5s var(--ease);
+  z-index: -1;
+}
+.wtitle.on::before { transform: scaleX(1); }
+/* Подсветка по ховеру — только на «настоящем десктопе»: есть точный pointer и нет тача.
+   (hover: hover) ненадёжен — iPadOS 13+ возвращает там true, из-за чего на тапе мигал sticky-hover. */
+@media (pointer: fine) and (not (any-pointer: coarse)) {
+  .wtitle:hover::before { transform: scaleX(1); }
+}
+.wtitle.dim { color: var(--fg-mut); }
+
+/* the panel is a conceptual "square" — each description appears in a different zone,
+   kept toward the RIGHT so long one-line titles never collide with the text */
+.wpanel { position: relative; align-self: stretch; min-height: 22rem; } /* было clamp(300px,42vh,440px) — на FHD те же 440px */
+.wdesc {
+  position: absolute; max-width: 15rem;
+  font-family: "Nunito Sans", sans-serif; font-size: var(--fs-body);
+  line-height: 1.5; color: var(--fg);
+  opacity: 0; transform: translateY(0.5rem); pointer-events: none;
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+}
+.wdesc.on { opacity: 1; transform: none; }
+/* точечно подобранные позиции каждого описания. Описания могут выходить за левый
+   край панели (отрицательные left) — это допустимо для абсолютного позиционирования. */
+/* тезис 1 — анкер слева, ширина чуть больше, чтобы получилось ровно 3 строки */
+.wdesc[data-i="0"] { top: 4%;    left: 15%;  max-width: 17rem; }
+/* тезис 2 — выше и левее, на одной линии с заголовком тезиса */
+.wdesc[data-i="1"] { top: 22%;   left: -8%;  }
+/* тезис 3 — растягиваем на всю ширину панели + чуть за её левый край */
+.wdesc[data-i="2"] { bottom: 4%; left: -14%; right: 2%; max-width: none; }
+/* тезис 4 — шире прежнего, в средне-правой части панели */
+.wdesc[data-i="3"] { top: 30%;   left: 12%;  right: 4%; max-width: none; }
+
+@media (max-width: 820px) {
+  .worklist { grid-template-columns: 1fr; gap: 1rem; }
+  .wpanel { min-height: 0; }
+  .wdesc { position: static; opacity: 1; transform: none; margin-bottom: 0.9rem; padding-left: 1.4rem;
+           border-left: 2px solid var(--hair); }
+}
+
+/* ============================================================
+   «Как я работаю» — аккордеон на тач-устройствах
+   ============================================================ */
+/* На тач-устройствах (нет точного pointer ИЛИ есть тач-ввод) тезисы превращаются в аккордеон:
+   тап раскрывает описание прямо под тезисом, повторный тап сворачивает. Несколько описаний
+   могут быть открыты одновременно. На десктопе с мышью — прежняя hover-логика.
+   Запятая в media-query = OR: «нет точного pointer» ИЛИ «есть хоть один тач-ввод». */
+@media not (pointer: fine), (any-pointer: coarse) {
+  /* через display: contents «развёртываем» структуру .wtitles + .wpanel так,
+     чтобы тезисы и описания шли парами как прямые flex-дети .worklist */
+  .worklist { display: flex; flex-direction: column; gap: 0; }
+  .wtitles, .wpanel { display: contents; }
+  /* порядок: тезис N → описание N → тезис N+1 → описание N+1 → ... */
+  .wtitle[data-i="0"] { order: 0; }
+  .wdesc[data-i="0"]  { order: 1; }
+  .wtitle[data-i="1"] { order: 2; }
+  .wdesc[data-i="1"]  { order: 3; }
+  .wtitle[data-i="2"] { order: 4; }
+  .wdesc[data-i="2"]  { order: 5; }
+  .wtitle[data-i="3"] { order: 6; }
+  .wdesc[data-i="3"]  { order: 7; }
+
+  /* Описание свёрнуто по умолчанию (max-height 0). По классу .open плавно раскрывается.
+     padding-left 28px = border-left .wtitle (4px) + padding-left .wtitle (24px) →
+     текст описания точно совпадает с текстом тезиса по левому краю. */
+  .wdesc {
+    position: static;
+    opacity: 0;
+    transform: none;
+    pointer-events: none;
+    max-height: 0;
+    max-width: none;
+    margin: 0;
+    padding: 0 0 0 1.4rem;
+    border-left: 0;
+    overflow: hidden;
+    transition: max-height 0.4s var(--ease),
+                opacity 0.3s var(--ease),
+                margin 0.4s var(--ease);
+  }
+  .wdesc.open {
+    opacity: 1;
+    pointer-events: auto;
+    max-height: 30rem;
+    margin: 0.8rem 0 1.2rem;
+  }
+  /* Сбрасываем индивидуальные позиции и max-width, заданные для desktop-варианта
+     (`.wdesc[data-i="0"]` и т.д. — у них specificity 0,2,0, перекрывали наш `.wdesc`).
+     В аккордеоне описание идёт под плашкой на всю её ширину. */
+  .wdesc[data-i] {
+    max-width: none;
+    top: auto; left: auto; right: auto; bottom: auto;
+  }
+}
+
+/* ============================================================
+   ТИПОГРАФИКА И ЗАГОЛОВКИ — мобильная и планшетная адаптация (≤900)
+   ============================================================ */
+/* На FHD и десктопе ничего не меняется — все правила только внутри @media.
+   На ≤900 уменьшаем основные размеры шрифтов и переключаем выравнивание
+   заголовков секций с «художественного смещения 30vw» на центр. */
+@media (max-width: 900px) {
+  :root {
+    --fs-h1: 2.2rem;  /* было 3.3rem — заголовки секций «Обо мне», «Как я работаю», «Кейсы», «Контакты» */
+    --fs-h2: 1.2rem;  /* было 1.5rem — «Привет!», тезисы work, названия кейсов, closing, кнопка cta, ссылки в бургер-меню */
+  }
+  /* Заголовок секции центрирован вместо «смещения вправо» — компактнее и аккуратнее на узких */
+  .section-title-shift {
+    margin-left: 0;
+    text-align: center;
+  }
+  /* Тезисы «Как я работаю» получают новый --fs-h2 = 1.2rem автоматически.
+     Высоту блока тезиса уменьшаем — он больше не должен быть «большой плашкой». */
+  .wtitle { min-height: 3.5rem; }
+  /* Отступ от заголовка «Кейсы» до первого кейса — в 1.5 раза меньше десктопного */
+  .cases .section-title-shift { margin-bottom: 3.78rem; }
+}
+
+/* ============================================================
+   КЕЙСЫ — chaotic carousel
+   ============================================================ */
+.cases {
+  position: relative;
+  /* верхний padding убран: визуальный гэп при скролле задаётся только padding-bottom у .work */
+  padding: 0 0 3.78rem; /* было clamp(56px,7vh,80px) — на FHD ~76px */
+  /* при клике на «Кейсы» в навигации браузер прокручивает с этим отступом — это сохраняет
+     прежнее расстояние от шапки до заголовка, не влияя на скролл-гэп */
+  scroll-margin-top: 7.57rem; /* совпадает с .work padding-top — якорь скроллит ровно */
+}
+.cases-head { margin-bottom: 0.86rem; } /* было clamp(10px,1.6vh,20px) — на FHD ~17px */
+
+/* minimalist edge arrows — no round backgrounds */
+.case-arrow {
+  position: absolute;
+  /* 50vh кэпится на FHD-значении 540px — иначе на широких/высоких мониторах стрелка уезжает
+     вниз вместе с ростом vh. Под zoom высчитанное значение масштабируется уже корректно. */
+  top: calc(min(540px, 50vh) - clamp(55px, 7vh, 80px));
+  transform: translateY(-50%); z-index: 20;
+  width: clamp(34px, 4vw, 52px); height: clamp(34px, 4vw, 52px);
+  border: none; background: none; cursor: pointer; padding: 0;
+  color: var(--fg); opacity: 0.55;
+  transition: opacity 0.25s, transform 0.25s var(--ease);
+}
+.case-arrow svg { width: 100%; height: 100%; display: block; }
+.case-arrow.prev { left: clamp(8px, 2.2vw, 34px); }
+.case-arrow.next { right: clamp(8px, 2.2vw, 34px); }
+.case-arrow:hover { opacity: 1; }
+.case-arrow.prev:hover { transform: translate(-4px, -50%); }
+.case-arrow.next:hover { transform: translate(4px, -50%); }
+.case-arrow:disabled { opacity: 0.16; cursor: default; transform: translateY(-50%); }
+
+.case-viewport { overflow: hidden; }
+.case-track { display: flex; transition: transform 0.65s var(--ease); }
+.case-slide { flex: 0 0 100%; min-width: 0; }
+
+.case-counter {
+  font-family: "Manrope", sans-serif; font-weight: 700;
+  font-size: 13px; color: var(--fg-mut); margin-top: 0.22rem; /* было clamp(2px,0.4vh,8px) — на FHD ~4px */
+  display: flex; align-items: center; gap: 0.7rem;
+}
+.case-counter [data-case-num] { color: var(--fg); }
+.case-counter .bar { flex: 1; height: 2px; background: var(--hair); position: relative; max-width: 16rem; }
+.case-counter .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--fg); transition: width 0.6s var(--ease); }
+
+@media (prefers-reduced-motion: reduce) {
+  .case-track { transition: none; }
+  html { scroll-behavior: auto; }
+}
